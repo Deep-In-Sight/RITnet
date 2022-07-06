@@ -147,6 +147,8 @@ class IrisDataset(Dataset):
     def __getitem__(self, idx):
         imagepath = osp.join(self.filepath,'images',self.list_files[idx]+'.png')
         pilimg = Image.open(imagepath).convert("L")
+        # resize
+        pilimg = pilimg.resize((400, 640))
         H, W = pilimg.width , pilimg.height
        
         #PREPROCESSING STEP FOR ALL TRAIN, VALIDATION AND TEST INPUTS 
@@ -154,21 +156,28 @@ class IrisDataset(Dataset):
         table = 255.0*(np.linspace(0, 1, 256)**0.8)
         pilimg = cv2.LUT(np.array(pilimg), table)
         
+        new_img = np.array(pilimg)
+        #print("gamma fixed input image")
+        #print(new_img.shape)
+        #print(new_img.min(), new_img.max())
+
 
         if self.split != 'test':
             labelpath = osp.join(self.filepath,'labels',self.list_files[idx]+'.npy')
             label = np.load(labelpath)    
             label = np.resize(label,(W,H))
-            label = Image.fromarray(label)     
+            # convert to UInt8
+            label = np.uint8(label)
+            label = Image.fromarray(label)
                
         if self.transform is not None:
             if self.split == 'train':
-                if random.random() < 0.2: 
-                    pilimg = Starburst_augment()(np.array(pilimg))  
-                if random.random() < 0.2: 
-                    pilimg = Line_augment()(np.array(pilimg))    
+                #if random.random() < 0.2: 
+                #    pilimg = Starburst_augment()(np.array(pilimg))  
+                #if random.random() < 0.2: 
+                #    pilimg = Line_augment()(np.array(pilimg))    
                 if random.random() < 0.2:
-                    pilimg = Gaussian_blur()(np.array(pilimg))   
+                    pilimg = Gaussian_blur()(np.array(pilimg))
                 if random.random() < 0.4:
                     pilimg, label = Translation()(np.array(pilimg),np.array(label))
                 
