@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader 
 import torch
 
-
+from time import time
 from ritnet.models import model_dict
 from ritnet.dataset import IrisDataset
 from ritnet.utils import mIoU, CrossEntropyLoss2d,total_metric,get_nparams,Logger,GeneralizedDiceLoss,SurfaceLoss
@@ -81,6 +81,7 @@ if __name__ == '__main__':
     
     model = model_dict[args.model]
     model  = model.to(device)
+    #model.load_state_dict(torch.load('{}/models/dense_net{}.pkl'.format(LOGDIR,'6')))
     torch.save(model.state_dict(), '{}/models/dense_net{}.pkl'.format(LOGDIR,'_0'))
     model.train()
     nparams = get_nparams(model)
@@ -126,8 +127,10 @@ if __name__ == '__main__':
     alpha[0:np.min([125,args.epochs])]=1 - np.arange(1,np.min([125,args.epochs])+1)/np.min([125,args.epochs])
     if args.epochs>125:
         alpha[125:]=1
-    ious = []        
+    ious = []
     for epoch in range(args.epochs):
+        t0 = time()
+        t00 = time()
         for i, batchdata in enumerate(trainloader):
 #            print (len(batchdata))
             img,labels,index,spatialWeights,maxDist= batchdata
@@ -151,11 +154,12 @@ if __name__ == '__main__':
             ious.append(iou)
     
             if i%10 == 0:
-                logger.write('Epoch:{} [{}/{}], Loss: {:.3f}'.format(epoch,i,len(trainloader),loss.item()))
+                logger.write(f'Epoch:{epoch} [{i}/{len(trainloader)}], Loss: {loss.item():.3f}, took {time()-t00:.2f}s')
+                t00 = time()
     
             loss.backward()
             optimizer.step()
-            
+        print(f"{time()-t0:.2f} seconds elapsed for epoch {epoch}")
         logger.write('Epoch:{}, Train mIoU: {}'.format(epoch,np.average(ious)))
         lossvalid , miou = lossandaccuracy(validloader,model,alpha[epoch])
         totalperf = total_metric(nparams,miou)

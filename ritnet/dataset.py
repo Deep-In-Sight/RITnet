@@ -156,7 +156,7 @@ class IrisDataset(Dataset):
         table = 255.0*(np.linspace(0, 1, 256)**0.8)
         pilimg = cv2.LUT(np.array(pilimg), table)
         
-        new_img = np.array(pilimg)
+        #new_img = np.array(pilimg)
         #print("gamma fixed input image")
         #print(new_img.shape)
         #print(new_img.min(), new_img.max())
@@ -172,21 +172,23 @@ class IrisDataset(Dataset):
                
         if self.transform is not None:
             if self.split == 'train':
+                pass
                 #if random.random() < 0.2: 
                 #    pilimg = Starburst_augment()(np.array(pilimg))  
                 #if random.random() < 0.2: 
                 #    pilimg = Line_augment()(np.array(pilimg))    
-                if random.random() < 0.2:
-                    pilimg = Gaussian_blur()(np.array(pilimg))
-                if random.random() < 0.4:
-                    pilimg, label = Translation()(np.array(pilimg),np.array(label))
+                #if random.random() < 0.2:
+                #    pilimg = Gaussian_blur()(np.array(pilimg))
+                #if random.random() < 0.4:
+                #    pilimg, label = Translation()(np.array(pilimg),np.array(label))
                 
-        img = self.clahe.apply(np.array(np.uint8(pilimg)))    
-        img = Image.fromarray(img)      
+        #img = self.clahe.apply(np.array(np.uint8(pilimg)))
+        img = Image.fromarray(np.array(np.uint8(pilimg)))
+        #img = Image.fromarray(img)
             
         if self.transform is not None:
-            if self.split == 'train':
-                img, label = RandomHorizontalFlip()(img,label)
+            #if self.split == 'train':
+                #img, label = RandomHorizontalFlip()(img,label)
             img = self.transform(img)    
 
 
@@ -214,7 +216,6 @@ class IrisDataset(Dataset):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     ds = IrisDataset('Semantic_Segmentation_Dataset',split='train',transform=transform)
-#    for i in range(1000):
     img, label, idx,x,y= ds[0]
     plt.subplot(121)
     plt.imshow(np.array(label))
