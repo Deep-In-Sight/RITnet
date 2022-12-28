@@ -1,12 +1,6 @@
-torchsummary
+numpy
+scikit-learn
+ipython
 tqdm
 matplotlib
-numpy
-torch 
-PIL   
-cv2   
-argparse  
-pprint 
-torchvision
-os
-
+opencv-python-headless

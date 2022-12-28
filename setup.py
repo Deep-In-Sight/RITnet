@@ -6,6 +6,7 @@ setup(
     name="ritnet",
     version=__version__,
     author="DeepInsight",
+    py_modules=["ritnet"],
     #packages=find_packages(),
     author_email="hschoi@dinsight.ai",
     url="",
